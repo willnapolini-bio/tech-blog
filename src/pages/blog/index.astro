@@ -1,0 +1,80 @@
+---
+// ---------------------------------------------------------------------------
+// Blog Listing Page — All published articles sorted by date
+// ---------------------------------------------------------------------------
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+const publishedPosts = allPosts
+  .sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
+
+// Extract unique tags for the filter bar
+const allTags = [...new Set(publishedPosts.flatMap((p) => p.data.tags ?? []))].sort();
+---
+
+<Base
+  title="Blog — TechPulse"
+  description="All articles: framework comparisons, deployment guides, and web development tutorials for modern developers."
+>
+  <div class="max-w-3xl mx-auto">
+    <!-- Page Header -->
+    <div class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
+        All Articles
+      </h1>
+      <p class="mt-2 text-lg text-slate-500">
+        {publishedPosts.length} articles on web development, deployment, and developer tools.
+      </p>
+    </div>
+
+    <!-- Tag Filter Bar -->
+    <div class="flex flex-wrap gap-2 mb-8 pb-8 border-b border-slate-200">
+      <a href="/blog" class="inline-flex items-center rounded-full bg-brand-600 px-3.5 py-1.5 text-xs font-medium text-white">
+        All
+      </a>
+      {allTags.map((tag) => (
+        <span class="inline-flex items-center rounded-full border border-slate-200 px-3.5 py-1.5 text-xs font-medium text-slate-600 hover:border-brand-300 hover:text-brand-600 transition-colors cursor-pointer">
+          {tag}
+        </span>
+      ))}
+    </div>
+
+    <!-- Post List -->
+    <div class="space-y-8">
+      {publishedPosts.map((post) => (
+        <article class="group">
+          <a href={`/blog/${post.id}/`} class="block">
+            <div class="flex flex-wrap gap-2 mb-2">
+              {post.data.tags?.map((tag: string) => (
+                <span class="inline-flex items-center rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-700 border border-brand-200">
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <h2 class="text-xl md:text-2xl font-bold text-slate-900 group-hover:text-brand-600 transition-colors">
+              {post.data.title}
+            </h2>
+            <p class="mt-2 text-slate-600 leading-relaxed line-clamp-2">
+              {post.data.description}
+            </p>
+            <div class="mt-3 flex items-center gap-4 text-sm text-slate-500">
+              <time datetime={post.data.pubDate.toISOString()}>
+                {new Date(post.data.pubDate).toLocaleDateString('en-US', {
+                  year: 'numeric', month: 'long', day: 'numeric',
+                })}
+              </time>
+              <span>{post.data.author ?? 'TechPulse Team'}</span>
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+
+    {publishedPosts.length === 0 && (
+      <div class="py-16 text-center">
+        <p class="text-slate-500 text-lg">No articles published yet. Check back soon!</p>
+      </div>
+    )}
+  </div>
+</Base>
