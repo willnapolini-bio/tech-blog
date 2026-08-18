@@ -1,0 +1,206 @@
+---
+// ---------------------------------------------------------------------------
+// BlogPost.astro — Article Layout with Strategic Ad Placements
+// ---------------------------------------------------------------------------
+// Extends Base.astro. Renders a single blog post with:
+//   - Article header (title, date, tags, reading time)
+//   - AdSlot ABOVE the fold (right after title)
+//   - Article body (Markdown content)
+//   - AdSlot at the END of the article
+//   - Author bio section
+//   - Related posts
+//
+// For MIDDLE ad placement, insert <AdSlot> directly in your .md files
+// using Astro's component syntax (requires MDX integration).
+
+import Base from './Base.astro';
+import type { CollectionEntry } from 'astro:content';
+import { getCollection, render } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { title, description, pubDate, tags, image, author } = post.data;
+
+// Astro base path — e.g. "/" for root or "/tech-blog/" for project pages
+const base = import.meta.env.BASE_URL;
+
+// Helper: strip .md extension from content collection IDs
+const slugFromId = (id: string) => id.replace(/\.md$/, '');
+
+// Render the Markdown content to HTML
+const { Content } = await render(post);
+
+// Format date: "January 15, 2024"
+const formattedDate = new Date(pubDate).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+// Estimate reading time (avg 200 words/min)
+const rawBody = post.body || '';
+const wordCount = rawBody.split(/\s+/).length;
+const readingTime = Math.max(1, Math.ceil(wordCount / 200));
+
+// Get related posts (same tags, excluding current)
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+const relatedPosts = allPosts
+  .filter(
+    (p) =>
+      p.id !== post.id &&
+      p.data.tags?.some((t: string) => tags?.includes(t))
+  )
+  .slice(0, 2);
+---
+
+<Base
+  title={`${title} | TechPulse`}
+  description={description}
+  image={image}
+  type="article"
+  pubDate={new Date(pubDate)}
+  author={author}
+  tags={tags}
+>
+  <article class="max-w-3xl mx-auto" itemscope itemtype="https://schema.org/BlogPosting">
+    <!-- ═══ Article Header ═══ -->
+    <header class="mb-8">
+      <!-- Breadcrumb for SEO -->
+      <nav aria-label="Breadcrumb" class="mb-4 text-sm text-slate-500">
+        <ol class="flex items-center gap-1.5" itemscope itemtype="https://schema.org/BreadcrumbList">
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a href={base} itemprop="item" class="hover:text-brand-600 transition-colors">
+              <span itemprop="name">Home</span>
+            </a>
+            <meta itemprop="position" content="1" />
+          </li>
+          <li class="text-slate-400">/</li>
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a href={`${base}blog/`} itemprop="item" class="hover:text-brand-600 transition-colors">
+              <span itemprop="name">Blog</span>
+            </a>
+            <meta itemprop="position" content="2" />
+          </li>
+          <li class="text-slate-400">/</li>
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <span itemprop="name" class="text-slate-700 font-medium">{title}</span>
+            <meta itemprop="position" content="3" />
+          </li>
+        </ol>
+      </nav>
+
+      <!-- Tags -->
+      {tags && tags.length > 0 && (
+        <div class="flex flex-wrap gap-2 mb-4">
+          {tags.map((tag) => (
+            <span class="inline-flex items-center rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700 border border-brand-200">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <!-- Title -->
+      <h1
+        class="text-3xl md:text-4xl lg:text-[2.75rem] font-extrabold tracking-tight text-slate-900 leading-tight"
+        itemprop="headline"
+      >
+        {title}
+      </h1>
+
+      <!-- Meta: Date, Author, Reading Time -->
+      <div class="mt-4 flex flex-wrap items-center gap-4 text-sm text-slate-500">
+        <time datetime={pubDate} itemprop="datePublished" class="flex items-center gap-1.5">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+          </svg>
+          {formattedDate}
+        </time>
+
+        {author && (
+          <span class="flex items-center gap-1.5" itemprop="author" itemscope itemtype="https://schema.org/Person">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+            <span itemprop="name">{author}</span>
+          </span>
+        )}
+
+        <span class="flex items-center gap-1.5">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {readingTime} min read
+        </span>
+      </div>
+    </header>
+
+    <!-- ═══ AD SLOT: Above the Fold ═══ -->
+    <!-- This is the highest-CPM placement. Visible without scrolling. -->
+    <div class="ad-slot-container mb-8" data-ad-slot="above-fold">
+      <!-- REPLACE with actual ad code. See AdSlot.astro for instructions. -->
+      <span class="text-sm text-slate-400">Ad Placement — Above the Fold</span>
+    </div>
+
+    <!-- ═══ Article Body ═══ -->
+    <div
+      class="prose"
+      itemprop="articleBody"
+    >
+      <Content />
+    </div>
+
+    <!-- ═══ AD SLOT: End of Article ═══ -->
+    <div class="ad-slot-container mt-8" data-ad-slot="end-of-article">
+      <!-- REPLACE with actual ad code. -->
+      <span class="text-sm text-slate-400">Ad Placement — End of Article</span>
+    </div>
+
+    <!-- ═══ Author Bio ═══ -->
+    <div class="mt-12 rounded-xl border border-slate-200 bg-slate-50 p-6 flex items-start gap-4">
+      <div class="flex-shrink-0 h-14 w-14 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 font-bold text-xl">
+        {author?.charAt(0) ?? 'T'}
+      </div>
+      <div>
+        <p class="font-semibold text-slate-900">{author ?? 'TechPulse Team'}</p>
+        <p class="mt-1 text-sm text-slate-600 leading-relaxed">
+          Full-stack developer and technical writer. Covering modern web development,
+          deployment strategies, and developer tooling. Follow for practical guides
+          you can apply to your projects today.
+        </p>
+      </div>
+    </div>
+
+    <!-- ═══ Related Posts ═══ -->
+    {relatedPosts.length > 0 && (
+      <section class="mt-12" aria-label="Related articles">
+        <h2 class="text-2xl font-bold text-slate-900 mb-6">Continue Reading</h2>
+        <div class="grid gap-6 sm:grid-cols-2">
+          {relatedPosts.map((related) => (
+            <a
+              href={`${base}blog/${slugFromId(related.id)}/`}
+              class="group rounded-xl border border-slate-200 p-5 hover:border-brand-300 hover:shadow-md transition-all duration-200"
+            >
+              <h3 class="font-semibold text-slate-900 group-hover:text-brand-600 transition-colors line-clamp-2">
+                {related.data.title}
+              </h3>
+              <p class="mt-2 text-sm text-slate-500 line-clamp-2">
+                {related.data.description}
+              </p>
+              <time class="mt-3 block text-xs text-slate-400">
+                {new Date(related.data.pubDate).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })}
+              </time>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </article>
+</Base>
