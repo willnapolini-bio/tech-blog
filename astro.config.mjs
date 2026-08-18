@@ -13,8 +13,8 @@ import sitemap from "@astrojs/sitemap";
 // Set REPO_NAME env var in GitHub Actions or hardcode it here.
 const REPO_NAME = process.env.REPO_NAME || "";
 const siteUrl = REPO_NAME
-  ? `https://your-username.github.io/${REPO_NAME}`
-  : "https://your-username.github.io";
+  ? `https://willnapolini-bio.github.io/${REPO_NAME}`
+  : "https://willnapolini-bio.github.io";
 
 export default defineConfig({
   // ── Site URL ─────────────────────────────────────────────────────────────
