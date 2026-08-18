@@ -1,0 +1,217 @@
+---
+// ---------------------------------------------------------------------------
+// Base.astro — Master Layout with Sponsorship Banner, Nav, Footer, Newsletter
+// ---------------------------------------------------------------------------
+// Every page extends this layout. It provides the full HTML shell including
+// the sponsorship banner, navigation, footer, and newsletter capture.
+
+import BaseHead from './BaseHead.astro';
+import SponsorshipBanner from '../components/SponsorshipBanner.astro';
+import NewsletterCapture from '../components/NewsletterCapture.astro';
+import { getCollection } from 'astro:content';
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  type?: 'website' | 'article';
+  pubDate?: Date;
+  author?: string;
+  tags?: string[];
+}
+
+const { title, description, image, type, pubDate, author, tags } = Astro.props;
+
+// Astro base path — e.g. "/" for root or "/tech-blog/" for project pages
+const base = import.meta.env.BASE_URL;
+
+// Helper: strip .md extension from content collection IDs
+const slug = (id: string) => id.replace(/\.md$/, '');
+
+// Get all blog posts for the footer "Popular Posts" links
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+const popularPosts = allPosts
+  .sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime())
+  .slice(0, 3);
+
+const currentYear = new Date().getFullYear();
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <BaseHead
+      title={title}
+      description={description}
+      image={image}
+      type={type}
+      pubDate={pubDate}
+      author={author}
+      tags={tags}
+    />
+  </head>
+  <body class="bg-white text-slate-900 font-sans antialiased">
+    <!-- ═══ Sponsorship Banner (top of page, above nav) ═══ -->
+    <!--
+      REPLACE sponsor details with your actual sponsor info.
+      Set to empty or comment out if no active sponsor.
+    -->
+    <SponsorshipBanner
+      sponsor="Vercel"
+      tagline="Ship faster with zero-config deployments"
+      url="https://vercel.com?ref=your-affiliate-id"
+    />
+
+    <!-- ═══ Navigation ═══ -->
+    <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur-lg">
+      <nav class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3" aria-label="Main navigation">
+        <!-- Logo / Home -->
+        <a href={base} class="flex items-center gap-2 text-xl font-bold text-slate-900 hover:text-brand-600 transition-colors">
+          <svg class="h-8 w-8 text-brand-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+          </svg>
+          TechPulse
+        </a>
+
+        <!-- Nav Links -->
+        <ul class="hidden sm:flex items-center gap-6 text-sm font-medium text-slate-600">
+          <li><a href={base} class="hover:text-brand-600 transition-colors">Home</a></li>
+          <li><a href={`${base}blog/`} class="hover:text-brand-600 transition-colors">Blog</a></li>
+          <li>
+            <a
+              href={`${base}rss.xml`}
+              class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-brand-300 hover:text-brand-600 transition-colors"
+              aria-label="RSS Feed"
+            >
+              <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm0 2h10v7h-2l-1 2H8l-1-2H5V5zm1 1v4h1l1 2h4l1-2h1V6H6z"/>
+                <circle cx="7.5" cy="13.5" r="1.5"/>
+              </svg>
+              RSS
+            </a>
+          </li>
+        </ul>
+
+        <!-- Mobile menu button -->
+        <button
+          type="button"
+          class="sm:hidden inline-flex items-center justify-center rounded-lg p-2 text-slate-600 hover:bg-slate-100"
+          aria-label="Toggle navigation menu"
+          id="mobile-menu-btn"
+        >
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        </button>
+      </nav>
+
+      <!-- Mobile menu (hidden by default) -->
+      <div id="mobile-menu" class="hidden sm:hidden border-t border-slate-200 bg-white">
+        <div class="px-4 py-3 space-y-2">
+          <a href={base} class="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">Home</a>
+          <a href={`${base}blog/`} class="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">Blog</a>
+          <a href={`${base}rss.xml`} class="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">RSS Feed</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- ═══ Main Content ═══ -->
+    <main class="mx-auto max-w-5xl px-4 py-8 md:py-12">
+      <slot />
+    </main>
+
+    <!-- ═══ Footer ═══ -->
+    <footer class="border-t border-slate-200 bg-slate-50">
+      <div class="mx-auto max-w-5xl px-4 py-12 md:py-16">
+        <!-- Newsletter Capture -->
+        <NewsletterCapture />
+
+        <!-- Footer Links Grid -->
+        <div class="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <!-- Brand Column -->
+          <div class="sm:col-span-2 lg:col-span-1">
+            <a href={base} class="flex items-center gap-2 text-lg font-bold text-slate-900">
+              <svg class="h-6 w-6 text-brand-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+              </svg>
+              TechPulse
+            </a>
+            <p class="mt-2 text-sm text-slate-500 leading-relaxed">
+              Practical guides, comparisons, and tutorials for modern web developers. Built with Astro, optimized for speed.
+            </p>
+          </div>
+
+          <!-- Quick Links -->
+          <div>
+            <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider">Quick Links</h3>
+            <ul class="mt-3 space-y-2 text-sm text-slate-600">
+              <li><a href={base} class="hover:text-brand-600 transition-colors">Home</a></li>
+              <li><a href={`${base}blog/`} class="hover:text-brand-600 transition-colors">All Articles</a></li>
+              <li><a href={`${base}rss.xml`} class="hover:text-brand-600 transition-colors">RSS Feed</a></li>
+              <li><a href={`${base}sitemap-index.xml`} class="hover:text-brand-600 transition-colors">Sitemap</a></li>
+            </ul>
+          </div>
+
+          <!-- Popular Posts -->
+          <div>
+            <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider">Popular Posts</h3>
+            <ul class="mt-3 space-y-2 text-sm text-slate-600">
+              {popularPosts.map((post) => (
+                <li>
+                  <a href={`${base}blog/${slug(post.id)}/`} class="hover:text-brand-600 transition-colors line-clamp-2">
+                    {post.data.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <!-- Legal -->
+          <div>
+            <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider">Legal</h3>
+            <ul class="mt-3 space-y-2 text-sm text-slate-600">
+              <li><a href={`${base}privacy`} class="hover:text-brand-600 transition-colors">Privacy Policy</a></li>
+              <li><a href={`${base}terms`} class="hover:text-brand-600 transition-colors">Terms of Service</a></li>
+              <li><a href={`${base}disclosure`} class="hover:text-brand-600 transition-colors">Affiliate Disclosure</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Copyright -->
+        <div class="mt-10 border-t border-slate-200 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+          <p>&copy; {currentYear} TechPulse. All rights reserved.</p>
+          <p>
+            Built with
+            <a href="https://astro.build?ref=your-affiliate-id" class="text-brand-500 hover:text-brand-600" rel="noopener noreferrer sponsored">Astro</a>
+            &amp; hosted on
+            <a href="https://pages.github.com" class="text-brand-500 hover:text-brand-600" rel="noopener noreferrer">GitHub Pages</a>.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Mobile menu toggle + PWA service worker registration -->
+    <script>
+      // Mobile nav toggle
+      const btn = document.getElementById('mobile-menu-btn');
+      const menu = document.getElementById('mobile-menu');
+      btn?.addEventListener('click', () => {
+        menu?.classList.toggle('hidden');
+      });
+
+      // PWA: Register service worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).then(
+            (reg) => {
+              console.log('SW registered:', reg.scope);
+              // Check for updates on page load
+              reg.update();
+            },
+            (err) => console.warn('SW registration failed:', err)
+          );
+        });
+      }
+    </script>
+  </body>
+</html>
