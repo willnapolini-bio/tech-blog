@@ -1,0 +1,10 @@
+# robots.txt for TechPulse
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://willnapolini-bio.github.io/tech-blog/sitemap-index.xml
+
+# Disallow admin/draft paths (if any)
+Disallow: /drafts/
+Disallow: /api/
