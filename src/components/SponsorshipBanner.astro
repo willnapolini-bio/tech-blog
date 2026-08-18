@@ -1,0 +1,76 @@
+---
+// ---------------------------------------------------------------------------
+// SponsorshipBanner.astro — Top Banner for Direct Site Sponsors
+// ---------------------------------------------------------------------------
+// A dismissible banner displayed at the very top of the page (above the nav).
+// Ideal for direct sponsorships or promoted content.
+//
+// USAGE in Base.astro:
+//   <SponsorshipBanner
+//     sponsor="Vercel"
+//     tagline="Ship faster with Vercel"
+//     url="https://vercel.com?ref=your-affiliate-id"
+//   />
+
+interface Props {
+  /** Sponsor company name */
+  sponsor: string;
+  /** Short tagline (max ~60 chars) */
+  tagline: string;
+  /** Destination URL */
+  url: string;
+  /** Additional CSS classes */
+  className?: string;
+}
+
+const { sponsor, tagline, url, className = "" } = Astro.props;
+---
+
+<aside
+  class:list={["sponsorship-banner relative bg-slate-900 text-white text-center py-2.5 px-4 text-sm", className]}
+  role="complementary"
+  aria-label="Sponsorship"
+>
+  <a
+    href={url}
+    target="_blank"
+    rel="noopener noreferrer sponsored"
+    class="inline-flex items-center gap-2 hover:underline underline-offset-2"
+  >
+    <span class="text-slate-400 font-medium uppercase text-xs tracking-wider">Sponsor</span>
+    <span class="text-slate-300">|</span>
+    <span class="font-semibold text-white">{sponsor}</span>
+    <span class="text-slate-300">— {tagline}</span>
+    <svg class="h-3.5 w-3.5 text-brand-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+    </svg>
+  </a>
+
+  <!-- Dismiss button (uses client-side JS) -->
+  <button
+    type="button"
+    class="sponsorship-banner-dismiss absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+    aria-label="Dismiss sponsorship banner"
+  >
+    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+</aside>
+
+<script>
+  // Dismiss banner and persist preference in sessionStorage
+  document.querySelector('.sponsorship-banner-dismiss')?.addEventListener('click', () => {
+    const banner = document.querySelector('.sponsorship-banner') as HTMLElement;
+    if (banner) {
+      banner.style.display = 'none';
+      sessionStorage.setItem('sponsor-banner-dismissed', 'true');
+    }
+  });
+
+  // On page load, check if user previously dismissed the banner
+  if (sessionStorage.getItem('sponsor-banner-dismissed') === 'true') {
+    const banner = document.querySelector('.sponsorship-banner') as HTMLElement;
+    if (banner) banner.style.display = 'none';
+  }
+</script>

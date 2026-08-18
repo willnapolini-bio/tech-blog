@@ -1,0 +1,80 @@
+---
+// ---------------------------------------------------------------------------
+// AdSlot.astro — Reusable Advertisement Placeholder Component
+// ---------------------------------------------------------------------------
+// This component renders an ad placement area. Replace the placeholder content
+// with your actual ad network code (Google AdSense, Carbon Ads, etc.).
+//
+// USAGE:
+//   <AdSlot id="in-article-1" slot="top" />
+//   <AdSlot id="sidebar-ad" slot="sidebar" className="mt-6" />
+//
+// PLACEMENT STRATEGY:
+//   - "top": Above the fold, right after the article title (highest CPM)
+//   - "middle": Inline within article content (good engagement)
+//   - "bottom": End of article (lower CPM but safe)
+//   - "sidebar": Side column on desktop (supplemental revenue)
+
+interface Props {
+  /** Unique identifier for this ad slot (used for ad targeting) */
+  id: string;
+  /** Visual placement hint — affects size/class */
+  slot?: "top" | "middle" | "bottom" | "sidebar";
+  /** Additional CSS classes */
+  className?: string;
+}
+
+const { id, slot = "middle", className = "" } = Astro.props;
+
+// Size configuration per slot type
+const sizeMap: Record<string, { width: string; height: string; label: string }> = {
+  top: { width: "728px", height: "90px", label: "Leaderboard (728x90)" },
+  middle: { width: "336px", height: "280px", label: "Large Rectangle (336x280)" },
+  bottom: { width: "728px", height: "90px", label: "Leaderboard (728x90)" },
+  sidebar: { width: "300px", height: "250px", label: "Medium Rectangle (300x250)" },
+};
+
+const size = sizeMap[slot];
+---
+
+<div
+  class:list={["ad-slot-container", className]}
+  data-ad-slot={id}
+  aria-label="Advertisement"
+  role="complementary"
+>
+  <!--
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  GOOGLE ADSENSE — Replace this block with your ad code       ║
+    ║                                                              ║
+    ║  Example:                                                    ║
+    ║  <ins class="adsbygoogle"                                   ║
+    ║    style="display:block"                                     ║
+    ║    data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"                  ║
+    ║    data-ad-slot="XXXXXXXXXX"                                 ║
+    ║    data-ad-format="auto"                                     ║
+    ║    data-full-width-responsive="true"></ins>                 ║
+    ║  <script>(adsbygoogle = window.adsbygoogle || []).push({});  ║
+    ║  </script>                                                   ║
+    ╚══════════════════════════════════════════════════════════════╝
+
+    CARBON ADS ALTERNATIVE:
+    <script
+      async
+      type="text/javascript"
+      src="//cdn.carbonads.com/carbon.js?serve=XXXXXXXX&placement=yourdomaincom"
+      id="_carbonads_js"
+    ></script>
+  -->
+
+  <!-- Placeholder visible during development -->
+  <div class="flex flex-col items-center gap-1 text-slate-400 text-sm">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+      />
+    </svg>
+    <span>Ad Slot: {id}</span>
+    <span class="text-xs">{size.label}</span>
+  </div>
+</div>

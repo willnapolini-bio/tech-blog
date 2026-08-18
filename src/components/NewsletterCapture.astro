@@ -1,0 +1,82 @@
+---
+// ---------------------------------------------------------------------------
+// NewsletterCapture.astro — Email Capture Footer Component
+// ---------------------------------------------------------------------------
+// A high-converting newsletter signup form placed in the site footer.
+// Integrated with a placeholder for ConvertKit / Beehiiv / Mailchimp.
+//
+// REPLACE the form action URL and hidden fields with your actual
+// email service provider endpoint.
+//
+// ConvertKit example: https://your-creator.ck.page/XXXXXXXX/add
+// Beehiiv example: https://api.beehiiv.com/v2/subscriptions
+// Mailchimp example: https://yourlist.us1.list-manage.com/subscribe/post?u=XX&id=XX
+
+interface Props {
+  /** Optional heading override */
+  heading?: string;
+  /** Optional description override */
+  description?: string;
+  /** Additional CSS classes */
+  className?: string;
+}
+
+const {
+  heading = "Join 5,000+ developers who read TechPulse weekly",
+  description = "Get the latest in web development, deployment strategies, and dev tools delivered to your inbox every Tuesday. No spam, unsubscribe anytime.",
+  className = "",
+} = Astro.props;
+---
+
+<section
+  class:list={["newsletter-capture rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 p-8 md:p-10 text-white shadow-lg", className]}
+  aria-label="Newsletter signup"
+>
+  <div class="mx-auto max-w-2xl text-center">
+    <!-- Heading -->
+    <h2 class="text-2xl md:text-3xl font-bold tracking-tight">
+      {heading}
+    </h2>
+    <p class="mt-3 text-brand-100 text-base md:text-lg leading-relaxed">
+      {description}
+    </p>
+
+    <!--
+      ╔══════════════════════════════════════════════════════════════╗
+      ║  NEWSLETTER INTEGRATION                                      ║
+      ║  Replace the form `action` URL with your email provider's    ║
+      ║  subscription endpoint. The `name` attributes must match     ║
+      ║  what your provider expects.                                  ║
+      ╚══════════════════════════════════════════════════════════════╝
+    -->
+    <form
+      class="mt-6 flex flex-col sm:flex-row gap-3 max-w-lg mx-auto"
+      action="https://your-creator.ck.page/XXXXXXXX/add"
+      method="POST"
+      aria-label="Newsletter subscription form"
+    >
+      <label for="newsletter-email" class="sr-only">Email address</label>
+      <input
+        id="newsletter-email"
+        type="email"
+        name="email"
+        required
+        placeholder="you@example.com"
+        class="flex-1 rounded-lg border-2 border-brand-300 bg-white/10 backdrop-blur-sm px-4 py-3 text-white placeholder-brand-200 focus:border-white focus:outline-none focus:ring-2 focus:ring-white/30 transition-colors"
+      />
+      <button
+        type="submit"
+        class="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-semibold text-brand-700 hover:bg-brand-50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+      >
+        Subscribe
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </button>
+    </form>
+
+    <p class="mt-3 text-xs text-brand-200">
+      Free forever. Unsubscribe in one click.
+    </p>
+  </div>
+</section>
