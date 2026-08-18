@@ -1,0 +1,12 @@
+# robots.txt for TechPulse
+# REPLACE 'your-username.github.io' with your actual domain
+
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://your-username.github.io/sitemap-index.xml
+
+# Disallow admin/draft paths (if any)
+Disallow: /drafts/
+Disallow: /api/
