@@ -3,7 +3,7 @@ title: "Astro vs. Next.js: Which Is Better for Beginners in 2026?"
 description: "Astro vs Next.js — a detailed comparison for beginners. Learn which framework is easier to learn, performs better, and is the right choice for your first web project in 2026."
 pubDate: 2026-08-15
 author: "TechPulse Team"
-image: "/astro-vs-nextjs-2026.jpg"
+image: "https://res.cloudinary.com/dbozqjwzx/image/upload/q_auto/f_auto/v1779213466/mans-search-for-meaning-by-viktor-frankl_tjrmgj.png"
 imageAlt: "Astro and Next.js framework logos side by side with comparison elements"
 tags:
   - Astro
